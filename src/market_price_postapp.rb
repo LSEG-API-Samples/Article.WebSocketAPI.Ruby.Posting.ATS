@@ -17,6 +17,7 @@ $action = 'update'
 
 addr_infos = Socket.ip_address_list
 addr_infos.each do |addr_info|
+    puts addr_info.ip_address
     if addr_info.ipv4? and !addr_info.ipv4_loopback?
         $position = addr_info.ip_address
     end
