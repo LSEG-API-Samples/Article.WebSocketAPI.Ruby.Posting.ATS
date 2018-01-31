@@ -8,7 +8,7 @@ require 'optparse'
 require 'socket'
 
 # Global Default Variables
-$hostname = '127.0.0.1'
+$hostname = '172.20.33.11'
 $port = '15000'
 $user = 'root'
 $app_id = '256'
@@ -50,7 +50,8 @@ def send_market_price_request(ws)
   mp_req_json_hash = {
     'ID' => 2,
     'Key' => {
-      'Name' => 'TRI.N'
+      'Name' => 'WASINCREATE1.BK',
+      'Service' => 'API_ATS'
     }
   }
   ws.send mp_req_json_hash.to_json.to_s

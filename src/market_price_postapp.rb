@@ -9,7 +9,7 @@ require 'socket'
 
 # Global Default Variables
 $hostname = '172.20.33.11'
-$port = '17000'
+$port = '15000'
 $user = 'api'
 $app_id = '256'
 #$position = Socket.ip_address_list[1].ip_address
@@ -106,6 +106,36 @@ def create_ric_post(ws)
   $post_id += 1
 end 
 
+# Add fields in ATS's contribution RIC by simple Market Price post
+def add_fields_post(ws)
+  mp_post_json_hash = {
+    'ID' => 1,
+    'Type' => 'Post',
+    'Domain' => 'MarketPrice',
+    'Ack' => true,
+    'PostID' => $post_id,
+    'PostUserInfo' =>  {
+      'Address' => $position, # Use the IP address as the Post User Address.
+      'UserID' => Process.pid
+    },
+    'Key' => {
+        'Name' => 'ATS_ADDFIELD_S',
+        'Service' => 'API_ATS'
+    },
+    'Message' => {
+      'ID' => 0,
+      'Type' => 'Update',
+      'Domain' => 'MarketPrice',
+      'Fields' => {'X_RIC_NAME' => 'WASINCREATE1.BK' ,'DSPLY_NAME' => 'Blackstone','TRDPRC_1' => 70.99 }
+    }
+  }
+  ws.send mp_post_json_hash.to_json.to_s
+  puts 'SENT:'
+  puts JSON.pretty_generate(mp_post_json_hash)
+
+  $post_id += 1
+end
+
 # Create and send simple Market Price post
 def send_market_price_post(ws)
   mp_post_json_hash = {
@@ -146,7 +176,8 @@ def process_message(ws, message_json)
 	  if message_domain == 'Login' then
         #send_market_price_request(ws)
         #send_market_price_post(ws)
-        create_ric_post(ws)
+        #create_ric_post(ws)
+        add_fields_post(ws)
 	  end
 	end
 
