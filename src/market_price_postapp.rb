@@ -136,6 +136,65 @@ def add_fields_post(ws)
   $post_id += 1
 end
 
+# Remove fields in ATS's contribution RIC by simple Market Price post
+def remove_fields_post(ws)
+  mp_post_json_hash = {
+    'ID' => 1,
+    'Type' => 'Post',
+    'Domain' => 'MarketPrice',
+    'Ack' => true,
+    'PostID' => $post_id,
+    'PostUserInfo' =>  {
+      'Address' => $position, # Use the IP address as the Post User Address.
+      'UserID' => Process.pid
+    },
+    'Key' => {
+        'Name' => 'ATS_DELETE',
+        'Service' => 'API_ATS'
+    },
+    'Message' => {
+      'ID' => 0,
+      'Type' => 'Update',
+      'Domain' => 'MarketPrice',
+      'Fields' => {'X_RIC_NAME' => 'WASINCREATE1.BK' ,'TRDPRC_1' => 70.99 }
+    }
+  }
+  ws.send mp_post_json_hash.to_json.to_s
+  puts 'SENT:'
+  puts JSON.pretty_generate(mp_post_json_hash)
+
+  $post_id += 1
+end
+
+def delete_ric_post(ws)
+  mp_post_json_hash = {
+    'ID' => 1,
+    'Type' => 'Post',
+    'Domain' => 'MarketPrice',
+    'Ack' => true,
+    'PostID' => $post_id,
+    'PostUserInfo' =>  {
+      'Address' => $position, # Use the IP address as the Post User Address.
+      'UserID' => Process.pid
+    },
+    'Key' => {
+        'Name' => 'ATS_DELETE_ALL',
+        'Service' => 'API_ATS'
+    },
+    'Message' => {
+      'ID' => 0,
+      'Type' => 'Update',
+      'Domain' => 'MarketPrice',
+      'Fields' => {'X_RIC_NAME' => 'WASINCREATE1.BK'}
+    }
+  }
+  ws.send mp_post_json_hash.to_json.to_s
+  puts 'SENT:'
+  puts JSON.pretty_generate(mp_post_json_hash)
+
+  $post_id += 1
+end
+
 # Create and send simple Market Price post
 def send_market_price_post(ws)
   mp_post_json_hash = {
@@ -177,7 +236,9 @@ def process_message(ws, message_json)
         #send_market_price_request(ws)
         #send_market_price_post(ws)
         #create_ric_post(ws)
-        add_fields_post(ws)
+        #add_fields_post(ws)
+        remove_fields_post(ws)
+        delete_ric_post(ws)
 	  end
 	end
 
