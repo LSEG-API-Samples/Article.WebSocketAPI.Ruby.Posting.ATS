@@ -91,13 +91,13 @@ def create_ric_post(ws)
     },
     'Key' => {
         'Name' => 'ATS_INSERT_S',
-        'Service' => 'API_ATS'
+        'Service' => 668
     },
     'Message' => {
       'ID' => 0,
       'Type' => 'Refresh',
       'Domain' => 'MarketPrice',
-      'Fields' => {'X_RIC_NAME' => 'WASINCREATE1.BK' ,'BID' => 45.55,'BIDSIZE' => 18, 'ASK' => 45.57, 'ASKSIZE' => 19}
+      'Fields' => {'X_RIC_NAME' => 'WASINCREATE2.BK' ,'BID' => 47.55,'BIDSIZE' => 35, 'ASK' => 51.57, 'ASKSIZE' => 40}
     }
   }
   ws.send mp_post_json_hash.to_json.to_s
@@ -121,13 +121,13 @@ def add_fields_post(ws)
     },
     'Key' => {
         'Name' => 'ATS_ADDFIELD_S',
-        'Service' => 'API_ATS'
+        'Service' => 668
     },
     'Message' => {
       'ID' => 0,
       'Type' => 'Update',
       'Domain' => 'MarketPrice',
-      'Fields' => {'X_RIC_NAME' => 'WASINCREATE1.BK' ,'DSPLY_NAME' => 'Blackstone','TRDPRC_1' => 70.99 }
+      'Fields' => {'X_RIC_NAME' => 'WASINCREATE2.BK' ,'DSPLY_NAME' => 'Blackstone','TRDPRC_1' => 70.99 }
     }
   }
   ws.send mp_post_json_hash.to_json.to_s
@@ -151,13 +151,13 @@ def remove_fields_post(ws)
     },
     'Key' => {
         'Name' => 'ATS_DELETE',
-        'Service' => 'API_ATS'
+        'Service' => 668
     },
     'Message' => {
       'ID' => 0,
       'Type' => 'Update',
       'Domain' => 'MarketPrice',
-      'Fields' => {'X_RIC_NAME' => 'WASINCREATE1.BK' ,'TRDPRC_1' => 70.99 }
+      'Fields' => {'X_RIC_NAME' => 'WASINCREATE2.BK' ,'TRDPRC_1' => 70.99 }
     }
   }
   ws.send mp_post_json_hash.to_json.to_s
@@ -180,13 +180,13 @@ def delete_ric_post(ws)
     },
     'Key' => {
         'Name' => 'ATS_DELETE_ALL',
-        'Service' => 'API_ATS'
+        'Service' => 668
     },
     'Message' => {
       'ID' => 0,
       'Type' => 'Update',
       'Domain' => 'MarketPrice',
-      'Fields' => {'X_RIC_NAME' => 'WASINCREATE1.BK'}
+      'Fields' => {'X_RIC_NAME' => 'WASINCREATE2.BK'}
     }
   }
   ws.send mp_post_json_hash.to_json.to_s
@@ -197,7 +197,7 @@ def delete_ric_post(ws)
 end
 
 # Create and send simple Market Price post
-def send_market_price_post(ws)
+def update_market_price_post(ws)
   mp_post_json_hash = {
     'ID' => 1,
     'Type' => 'Post',
@@ -209,8 +209,8 @@ def send_market_price_post(ws)
       'UserID' => Process.pid
     },
     'Key' => {
-        'Name' => 'WASIN.BK',
-        'Service' => 'API_ATS'
+        'Name' => 'WASINCREATE2.BK',
+        'Service' => 668
     },
     'Message' => {
       'ID' => 0,
@@ -243,6 +243,8 @@ def process_message(ws, message_json)
             remove_fields_post(ws)
           when 'delete'
             delete_ric_post(ws)
+          when 'update'
+            update_market_price_post(ws)
           else 
             send_market_price_request(ws)
         end

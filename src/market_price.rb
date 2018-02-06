@@ -50,7 +50,7 @@ def send_market_price_request(ws)
   mp_req_json_hash = {
     'ID' => 2,
     'Key' => {
-      'Name' => 'WASINCREATE1.BK',
+      'Name' => 'WASINCREATE2.BK',
       'Service' => 'API_ATS'
     }
   }
