@@ -234,12 +234,18 @@ def process_message(ws, message_json)
     message_domain = message_json['Domain']
 	if message_domain != nil then
 	  if message_domain == 'Login' then
-        #send_market_price_request(ws)
-        #send_market_price_post(ws)
-        #create_ric_post(ws)
-        #add_fields_post(ws)
-        remove_fields_post(ws)
-        delete_ric_post(ws)
+        case $action
+          when 'create'
+            create_ric_post(ws)
+          when 'addfield'
+            add_fields_post(ws)
+          when 'removefield'
+            remove_fields_post(ws)
+          when 'delete'
+            delete_ric_post(ws)
+          else 
+            send_market_price_request(ws)
+        end
 	  end
 	end
 
