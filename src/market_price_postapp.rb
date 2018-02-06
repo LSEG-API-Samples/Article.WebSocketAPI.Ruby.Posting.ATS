@@ -15,6 +15,7 @@ $app_id = '256'
 #$position = Socket.ip_address_list[1].ip_address
 $action = 'update'
 
+# get IPV4 from user machine
 addr_infos = Socket.ip_address_list
 addr_infos.each do |addr_info|
     puts addr_info.ip_address
@@ -61,21 +62,6 @@ opt_parser = OptionParser.new do |opt|
 end
 
 opt_parser.parse!
-
-
-
-# Create and send simple Market Price batch request with view
-def send_market_price_request(ws)
-  mp_req_json_hash = {
-    'ID' => 2,
-    'Key' => {
-      'Name' => 'TRI.N'
-    }
-  }
-  ws.send mp_req_json_hash.to_json.to_s
-  puts 'SENT:'
-  puts JSON.pretty_generate(mp_req_json_hash)
-end
 
 # Create RIC in ATS by simple Market Price post
 def create_ric_post(ws)
@@ -232,36 +218,25 @@ def process_message(ws, message_json)
 
   if message_type == 'Refresh' then
     message_domain = message_json['Domain']
-	if message_domain != nil then
-	  if message_domain == 'Login' then
+	  if message_domain != nil then
+	    if message_domain == 'Login' then
         case $action
           when 'create'
             create_ric_post(ws)
-          when 'addfield'
+          when 'addfields'
             add_fields_post(ws)
-          when 'removefield'
+          when 'removefields'
             remove_fields_post(ws)
           when 'delete'
             delete_ric_post(ws)
           when 'update'
             update_market_price_post(ws)
           else 
-            send_market_price_request(ws)
+            puts "Received unsupported action, exit application"
+            exit 1
         end
-	  end
-	end
-
-    if message_json['ID'] == 2 and not $is_item_stream_open and
-        (message_json['State'] == nil or (message_json['State']['Stream'] == 'Open' and message_json['State']['Data'] == 'Ok')) then
-      # Our TRI.N stream is now open. We can start posting content.
-      $is_item_stream_open = true
-      Thread.new do
-        loop do
-          sleep 3
-          #send_market_price_post(ws)
-        end
-      end
     end
+  end
   elsif message_type == 'Ping' then
     pong_json_hash = {
 	    'Type' => 'Pong',
@@ -269,6 +244,9 @@ def process_message(ws, message_json)
     ws.send pong_json_hash.to_json.to_s
     puts 'SENT:'
     puts JSON.pretty_generate(pong_json_hash)
+  elsif message_type == 'Ack' then
+    puts "RECEIVED: Ack from #{$hostname}:#{$port}, exit application"
+    exit 1
   end
 end
 
