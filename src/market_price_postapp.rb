@@ -8,17 +8,15 @@ require 'optparse'
 require 'socket'
 
 # Global Default Variables
-$hostname = '172.20.33.11'
+$hostname = '127.0.0.1'
 $port = '15000'
 $user = 'api'
 $app_id = '256'
-#$position = Socket.ip_address_list[1].ip_address
 $action = 'update'
 
-# get IPV4 from user machine
+# get IPV4 from user machine as a default position information
 addr_infos = Socket.ip_address_list
 addr_infos.each do |addr_info|
-    puts addr_info.ip_address
     if addr_info.ipv4? and !addr_info.ipv4_loopback?
         $position = addr_info.ip_address
     end
@@ -56,12 +54,19 @@ opt_parser = OptionParser.new do |opt|
   end
   
   opt.on('--help','HELP') do |help|
-	puts 'Usage: market_price.rb [--hostname hostname] [--port port] [--app_id app_id] [--user user] [--position position] [--action {create, addfields, deletefield, delete, update}][--help]'
+	puts 'Usage: market_price.rb [--hostname hostname] [--port port] [--app_id app_id] [--user user] [--position position] [--action {create, addfields, removefields, delete, update}][--help]'
 	exit 0
   end
 end
 
 opt_parser.parse!
+
+# Check if user inputs unsupported action value
+if !['create','addfields','removefields','delete','update'].include?($action)
+  puts "Received unsupported action value, exit application. Support action values are {create, addfields, removefields, delete, update}"
+  exit 1
+end
+
 
 # Create RIC in ATS by simple Market Price post
 def create_ric_post(ws)
@@ -76,14 +81,14 @@ def create_ric_post(ws)
       'UserID' => Process.pid
     },
     'Key' => {
-        'Name' => 'ATS_INSERT_S',
-        'Service' => 668
+        'Name' => 'ATS_INSERT_S', # RIC name for create ATS server contribution RIC
+        'Service' => 668 # ADS Service ID that connects to ATS server
     },
     'Message' => {
       'ID' => 0,
       'Type' => 'Refresh',
       'Domain' => 'MarketPrice',
-      'Fields' => {'X_RIC_NAME' => 'WASINCREATE2.BK' ,'BID' => 47.55,'BIDSIZE' => 35, 'ASK' => 51.57, 'ASKSIZE' => 40}
+      'Fields' => {'X_RIC_NAME' => 'CREATED.RIC' ,'BID' => 47.55,'BIDSIZE' => 35, 'ASK' => 51.57, 'ASKSIZE' => 40}
     }
   }
   ws.send mp_post_json_hash.to_json.to_s
@@ -106,14 +111,14 @@ def add_fields_post(ws)
       'UserID' => Process.pid
     },
     'Key' => {
-        'Name' => 'ATS_ADDFIELD_S',
-        'Service' => 668
+        'Name' => 'ATS_ADDFIELD_S', # RIC name for add fields to ATS server contribution RIC
+        'Service' => 668 # ADS Service ID that connects to ATS server
     },
     'Message' => {
       'ID' => 0,
       'Type' => 'Update',
       'Domain' => 'MarketPrice',
-      'Fields' => {'X_RIC_NAME' => 'WASINCREATE2.BK' ,'DSPLY_NAME' => 'Blackstone','TRDPRC_1' => 70.99 }
+      'Fields' => {'X_RIC_NAME' => 'CREATED.RIC' ,'DSPLY_NAME' => 'Blackstone','TRDPRC_1' => 70.99 }
     }
   }
   ws.send mp_post_json_hash.to_json.to_s
@@ -136,14 +141,14 @@ def remove_fields_post(ws)
       'UserID' => Process.pid
     },
     'Key' => {
-        'Name' => 'ATS_DELETE',
-        'Service' => 668
+        'Name' => 'ATS_DELETE', # RIC Name for remove fields for ATS server contribution RIC
+        'Service' => 668 # ADS Service ID that connects to ATS server
     },
     'Message' => {
       'ID' => 0,
       'Type' => 'Update',
       'Domain' => 'MarketPrice',
-      'Fields' => {'X_RIC_NAME' => 'WASINCREATE2.BK' ,'TRDPRC_1' => 70.99 }
+      'Fields' => {'X_RIC_NAME' => 'CREATED.RIC' ,'TRDPRC_1' => 70.99 }
     }
   }
   ws.send mp_post_json_hash.to_json.to_s
@@ -165,14 +170,14 @@ def delete_ric_post(ws)
       'UserID' => Process.pid
     },
     'Key' => {
-        'Name' => 'ATS_DELETE_ALL',
-        'Service' => 668
+        'Name' => 'ATS_DELETE_ALL', # RIC Name for remove ATS server contribution RIC
+        'Service' => 668 # ADS Service ID that connects to ATS server
     },
     'Message' => {
       'ID' => 0,
       'Type' => 'Update',
       'Domain' => 'MarketPrice',
-      'Fields' => {'X_RIC_NAME' => 'WASINCREATE2.BK'}
+      'Fields' => {'X_RIC_NAME' => 'CREATED.RIC'}
     }
   }
   ws.send mp_post_json_hash.to_json.to_s
@@ -195,7 +200,7 @@ def update_market_price_post(ws)
       'UserID' => Process.pid
     },
     'Key' => {
-        'Name' => 'WASINCREATE2.BK',
+        'Name' => 'CREATED.RIC', # ATS server contribution RIC name
         'Service' => 668
     },
     'Message' => {
@@ -219,7 +224,8 @@ def process_message(ws, message_json)
   if message_type == 'Refresh' then
     message_domain = message_json['Domain']
 	  if message_domain != nil then
-	    if message_domain == 'Login' then
+      if message_domain == 'Login' then
+        # send POST message based on user input action value
         case $action
           when 'create'
             create_ric_post(ws)
@@ -246,7 +252,7 @@ def process_message(ws, message_json)
     puts JSON.pretty_generate(pong_json_hash)
   elsif message_type == 'Ack' then
     puts "RECEIVED: Ack from #{$hostname}:#{$port}, exit application"
-    exit 1
+    exit 0
   end
 end
 
