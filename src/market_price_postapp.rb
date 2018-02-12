@@ -1,5 +1,5 @@
 #!/usr/bin/ruby
-# * Simple example of outputting Market Price JSON data using Websockets
+# * Simple example of Posting Market Price JSON data to ATS server (via ADS3.2) using Websockets
 
 require 'rubygems'
 require 'websocket-client-simple'
@@ -68,7 +68,7 @@ if !['create','addfields','removefields','delete','update'].include?($action)
 end
 
 
-# Create RIC in ATS by simple Market Price post
+# Create contribution RIC in ATS by simple Market Price post
 def create_ric_post(ws)
     mp_post_json_hash = {
     'ID' => 1,
@@ -88,7 +88,7 @@ def create_ric_post(ws)
       'ID' => 0,
       'Type' => 'Refresh',
       'Domain' => 'MarketPrice',
-      'Fields' => {'X_RIC_NAME' => 'CREATED.RIC' ,'BID' => 47.55,'BIDSIZE' => 35, 'ASK' => 51.57, 'ASKSIZE' => 40}
+      'Fields' => {'X_RIC_NAME' => 'CREATED.RIC' ,'BID' => 12, 'ASK' => 15}
     }
   }
   ws.send mp_post_json_hash.to_json.to_s
@@ -98,7 +98,7 @@ def create_ric_post(ws)
   $post_id += 1
 end 
 
-# Add fields in ATS's contribution RIC by simple Market Price post
+# Add fields to ATS's contribution RIC by simple Market Price post
 def add_fields_post(ws)
   mp_post_json_hash = {
     'ID' => 1,
@@ -118,7 +118,7 @@ def add_fields_post(ws)
       'ID' => 0,
       'Type' => 'Update',
       'Domain' => 'MarketPrice',
-      'Fields' => {'X_RIC_NAME' => 'CREATED.RIC' ,'DSPLY_NAME' => 'Blackstone','TRDPRC_1' => 70.99 }
+      'Fields' => {'X_RIC_NAME' => 'CREATED.RIC' ,'HIGH_1' => 22,'LOW_1' => 3 }
     }
   }
   ws.send mp_post_json_hash.to_json.to_s
@@ -128,7 +128,7 @@ def add_fields_post(ws)
   $post_id += 1
 end
 
-# Remove fields in ATS's contribution RIC by simple Market Price post
+# Remove fields from ATS's contribution RIC by simple Market Price post
 def remove_fields_post(ws)
   mp_post_json_hash = {
     'ID' => 1,
@@ -148,7 +148,7 @@ def remove_fields_post(ws)
       'ID' => 0,
       'Type' => 'Update',
       'Domain' => 'MarketPrice',
-      'Fields' => {'X_RIC_NAME' => 'CREATED.RIC' ,'TRDPRC_1' => 70.99 }
+      'Fields' => {'X_RIC_NAME' => 'CREATED.RIC' ,'LOW_1' => 1 ,'ASK' => 2 }
     }
   }
   ws.send mp_post_json_hash.to_json.to_s
@@ -158,6 +158,7 @@ def remove_fields_post(ws)
   $post_id += 1
 end
 
+# Remove ATS's contribution RIC by simple Market Price post
 def delete_ric_post(ws)
   mp_post_json_hash = {
     'ID' => 1,
@@ -187,7 +188,7 @@ def delete_ric_post(ws)
   $post_id += 1
 end
 
-# Create and send simple Market Price post
+# Update market data to ATS's contribution field by simple Market Price post
 def update_market_price_post(ws)
   mp_post_json_hash = {
     'ID' => 1,
@@ -201,13 +202,13 @@ def update_market_price_post(ws)
     },
     'Key' => {
         'Name' => 'CREATED.RIC', # ATS server contribution RIC name
-        'Service' => 668
+        'Service' => 668 # ADS Service ID that connects to ATS server
     },
     'Message' => {
       'ID' => 0,
       'Type' => 'Update',
       'Domain' => 'MarketPrice',
-      'Fields' => {'BID' => 45.55,'BIDSIZE' => 18, 'ASK' => 45.57, 'ASKSIZE' => 19}
+      'Fields' => {'BID' => 43,'ASK' => 46 }
     }
   }
   ws.send mp_post_json_hash.to_json.to_s
@@ -243,15 +244,15 @@ def process_message(ws, message_json)
         end
     end
   end
-  elsif message_type == 'Ping' then
+  elsif message_type == 'Ping' then # send Pong back to ADS WebSocket handshake 'Ping'
     pong_json_hash = {
 	    'Type' => 'Pong',
     }
     ws.send pong_json_hash.to_json.to_s
     puts 'SENT:'
     puts JSON.pretty_generate(pong_json_hash)
-  elsif message_type == 'Ack' then
-    puts "RECEIVED: Ack from #{$hostname}:#{$port}, exit application"
+  elsif message_type == 'Ack' || message_type == 'Error' || message_type == 'Status' then
+    puts "RECEIVED: #{message_type} from #{$hostname}:#{$port}, exit application"
     exit 0
   end
 end
