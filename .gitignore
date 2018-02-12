@@ -6,3 +6,4 @@ example_msgs/EMA_UpdateData.txt
 java/
 RDMFieldDictionary
 tmp/
+src/market_price.rb

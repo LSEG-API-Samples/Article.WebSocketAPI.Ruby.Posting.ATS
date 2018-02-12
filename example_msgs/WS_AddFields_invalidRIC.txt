@@ -1,0 +1,91 @@
+D:\Project\Code\Elektron_ws_ruby_post\src>ruby market_price_postapp.rb --action addfields
+Connecting to WebSocket ws://172.20.33.11:15000/WebSocket ...
+WebSocket successfully connected!
+SENT:
+{
+  "ID": 1,
+  "Domain": "Login",
+  "Key": {
+    "Name": "api",
+    "Elements": {
+      "ApplicationId": "256",
+      "Position": "10.42.68.162"
+    }
+  }
+}
+RECEIVED:
+[
+  {
+    "ID": 1,
+    "Type": "Refresh",
+    "Domain": "Login",
+    "Key": {
+      "Name": "api",
+      "Elements": {
+        "AllowSuspectData": 1,
+        "ApplicationId": "256",
+        "ApplicationName": "ADS",
+        "Position": "10.42.68.162",
+        "ProvidePermissionExpressions": 1,
+        "ProvidePermissionProfile": 0,
+        "SingleOpen": 1,
+        "SupportEnhancedSymbolList": 1,
+        "SupportOMMPost": 1,
+        "SupportPauseResume": 1,
+        "SupportStandby": 1,
+        "SupportBatchRequests": 7,
+        "SupportViewRequests": 1,
+        "SupportOptimizedPauseResume": 1
+      }
+    },
+    "State": {
+      "Stream": "Open",
+      "Data": "Ok",
+      "Text": "Login accepted by host apis11."
+    },
+    "Elements": {
+      "PingTimeout": 30,
+      "MaxMsgSize": 61430
+    }
+  }
+]
+SENT:
+{
+  "ID": 1,
+  "Type": "Post",
+  "Domain": "MarketPrice",
+  "Ack": true,
+  "PostID": 1,
+  "PostUserInfo": {
+    "Address": "10.42.68.162",
+    "UserID": 12088
+  },
+  "Key": {
+    "Name": "ATS_ADDFIELD_S",
+    "Service": 668
+  },
+  "Message": {
+    "ID": 0,
+    "Type": "Update",
+    "Domain": "MarketPrice",
+    "Fields": {
+      "X_RIC_NAME": "INVALID.RIC",
+      "HIGH_1": 22,
+      "LOW_1": 3
+    }
+  }
+}
+RECEIVED:
+[
+  {
+    "ID": 1,
+    "Type": "Ack",
+    "AckID": 1,
+    "Text": "[4]: Creation Accepted",
+    "Key": {
+      "Service": "API_ATS",
+      "Name": "ATS_ADDFIELD_S"
+    }
+  }
+]
+RECEIVED: Ack from 172.20.33.11:15000, exit application
