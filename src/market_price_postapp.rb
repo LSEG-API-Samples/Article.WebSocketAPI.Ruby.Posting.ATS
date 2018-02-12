@@ -8,7 +8,7 @@ require 'optparse'
 require 'socket'
 
 # Global Default Variables
-$hostname = '12.7.0.01'
+$hostname = '127.0.0.1'
 $port = '15000'
 $user = 'api'
 $app_id = '256'
