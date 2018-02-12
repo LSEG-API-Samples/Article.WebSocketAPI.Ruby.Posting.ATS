@@ -189,3 +189,21 @@ RECEIVED:
   }
 ]
 ```
+
+### Posting to unavailable Service ID
+```
+RECEIVED:
+[
+  {
+    "ID": 1,
+    "Type": "Ack",
+    "AckID": 1,
+    "NakCode": "SourceDown",
+    "Text": "A9: Service is unavailable.",
+    "Key": {
+      "Service": "NI_PUB",
+      "Name": "ATS_INSERT_S"
+    }
+  }
+]
+```
