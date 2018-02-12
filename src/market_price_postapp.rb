@@ -1,5 +1,5 @@
 #!/usr/bin/ruby
-# * Simple example of outputting Market Price JSON data using Websockets
+# * Simple example of Posting Market Price JSON data to ATS server (via ADS3.2) using Websockets
 
 require 'rubygems'
 require 'websocket-client-simple'
@@ -8,13 +8,13 @@ require 'optparse'
 require 'socket'
 
 # Global Default Variables
-$hostname = '172.20.33.11'
-$port = '17000'
+$hostname = '127.0.0.1'
+$port = '15000'
 $user = 'api'
 $app_id = '256'
-#$position = Socket.ip_address_list[1].ip_address
 $action = 'update'
 
+# get IPV4 from user machine as a default position information
 addr_infos = Socket.ip_address_list
 addr_infos.each do |addr_info|
     if addr_info.ipv4? and !addr_info.ipv4_loopback?
@@ -54,29 +54,21 @@ opt_parser = OptionParser.new do |opt|
   end
   
   opt.on('--help','HELP') do |help|
-	puts 'Usage: market_price.rb [--hostname hostname] [--port port] [--app_id app_id] [--user user] [--position position] [--action {create, addfields, deletefield, delete, update}][--help]'
+	puts 'Usage: market_price.rb [--hostname hostname] [--port port] [--app_id app_id] [--user user] [--position position] [--action {create, addfields, removefields, delete, update}][--help]'
 	exit 0
   end
 end
 
 opt_parser.parse!
 
-
-
-# Create and send simple Market Price batch request with view
-def send_market_price_request(ws)
-  mp_req_json_hash = {
-    'ID' => 2,
-    'Key' => {
-      'Name' => 'TRI.N'
-    }
-  }
-  ws.send mp_req_json_hash.to_json.to_s
-  puts 'SENT:'
-  puts JSON.pretty_generate(mp_req_json_hash)
+# Check if user inputs unsupported action value
+if !['create','addfields','removefields','delete','update'].include?($action)
+  puts "Received unsupported action value, exit application. Support action values are {create, addfields, removefields, delete, update}"
+  exit 1
 end
 
-# Create RIC in ATS by simple Market Price post
+
+# Create contribution RIC in ATS by simple Market Price post
 def create_ric_post(ws)
     mp_post_json_hash = {
     'ID' => 1,
@@ -89,14 +81,14 @@ def create_ric_post(ws)
       'UserID' => Process.pid
     },
     'Key' => {
-        'Name' => 'ATS_INSERT_S',
-        'Service' => 'API_ATS'
+        'Name' => 'ATS_INSERT_S', # RIC name for create ATS server contribution RIC
+        'Service' => 668 # ADS Service ID that connects to ATS server
     },
     'Message' => {
       'ID' => 0,
       'Type' => 'Refresh',
       'Domain' => 'MarketPrice',
-      'Fields' => {'X_RIC_NAME' => 'WASINCREATE1.BK' ,'BID' => 45.55,'BIDSIZE' => 18, 'ASK' => 45.57, 'ASKSIZE' => 19}
+      'Fields' => {'X_RIC_NAME' => 'CREATED.RIC' ,'BID' => 12, 'ASK' => 15}
     }
   }
   ws.send mp_post_json_hash.to_json.to_s
@@ -106,8 +98,8 @@ def create_ric_post(ws)
   $post_id += 1
 end 
 
-# Create and send simple Market Price post
-def send_market_price_post(ws)
+# Add fields to ATS's contribution RIC by simple Market Price post
+def add_fields_post(ws)
   mp_post_json_hash = {
     'ID' => 1,
     'Type' => 'Post',
@@ -119,14 +111,104 @@ def send_market_price_post(ws)
       'UserID' => Process.pid
     },
     'Key' => {
-        'Name' => 'WASIN.BK',
-        'Service' => 'API_ATS'
+        'Name' => 'ATS_ADDFIELD_S', # RIC name for add fields to ATS server contribution RIC
+        'Service' => 668 # ADS Service ID that connects to ATS server
     },
     'Message' => {
       'ID' => 0,
       'Type' => 'Update',
       'Domain' => 'MarketPrice',
-      'Fields' => {'BID' => 45.55,'BIDSIZE' => 18, 'ASK' => 45.57, 'ASKSIZE' => 19}
+      'Fields' => {'X_RIC_NAME' => 'CREATED.RIC' ,'HIGH_1' => 22,'LOW_1' => 3 }
+    }
+  }
+  ws.send mp_post_json_hash.to_json.to_s
+  puts 'SENT:'
+  puts JSON.pretty_generate(mp_post_json_hash)
+
+  $post_id += 1
+end
+
+# Remove fields from ATS's contribution RIC by simple Market Price post
+def remove_fields_post(ws)
+  mp_post_json_hash = {
+    'ID' => 1,
+    'Type' => 'Post',
+    'Domain' => 'MarketPrice',
+    'Ack' => true,
+    'PostID' => $post_id,
+    'PostUserInfo' =>  {
+      'Address' => $position, # Use the IP address as the Post User Address.
+      'UserID' => Process.pid
+    },
+    'Key' => {
+        'Name' => 'ATS_DELETE', # RIC Name for remove fields for ATS server contribution RIC
+        'Service' => 668 # ADS Service ID that connects to ATS server
+    },
+    'Message' => {
+      'ID' => 0,
+      'Type' => 'Update',
+      'Domain' => 'MarketPrice',
+      'Fields' => {'X_RIC_NAME' => 'CREATED.RIC' ,'LOW_1' => 1 ,'ASK' => 2 }
+    }
+  }
+  ws.send mp_post_json_hash.to_json.to_s
+  puts 'SENT:'
+  puts JSON.pretty_generate(mp_post_json_hash)
+
+  $post_id += 1
+end
+
+# Remove ATS's contribution RIC by simple Market Price post
+def delete_ric_post(ws)
+  mp_post_json_hash = {
+    'ID' => 1,
+    'Type' => 'Post',
+    'Domain' => 'MarketPrice',
+    'Ack' => true,
+    'PostID' => $post_id,
+    'PostUserInfo' =>  {
+      'Address' => $position, # Use the IP address as the Post User Address.
+      'UserID' => Process.pid
+    },
+    'Key' => {
+        'Name' => 'ATS_DELETE_ALL', # RIC Name for remove ATS server contribution RIC
+        'Service' => 668 # ADS Service ID that connects to ATS server
+    },
+    'Message' => {
+      'ID' => 0,
+      'Type' => 'Update',
+      'Domain' => 'MarketPrice',
+      'Fields' => {'X_RIC_NAME' => 'CREATED.RIC'}
+    }
+  }
+  ws.send mp_post_json_hash.to_json.to_s
+  puts 'SENT:'
+  puts JSON.pretty_generate(mp_post_json_hash)
+
+  $post_id += 1
+end
+
+# Update market data to ATS's contribution field by simple Market Price post
+def update_market_price_post(ws)
+  mp_post_json_hash = {
+    'ID' => 1,
+    'Type' => 'Post',
+    'Domain' => 'MarketPrice',
+    'Ack' => true,
+    'PostID' => $post_id,
+    'PostUserInfo' =>  {
+      'Address' => $position, # Use the IP address as the Post User Address.
+      'UserID' => Process.pid
+    },
+    'Key' => {
+        'Name' => 'CREATED.RIC', # ATS server contribution RIC name
+        'Service' => 668 # ADS Service ID that connects to ATS server
+    },
+    'Message' => {
+      'ID' => 0,
+      'Type' => 'Update',
+      'Domain' => 'MarketPrice',
+      'Fields' => {'BID' => 43,'ASK' => 46 }
     }
   }
   ws.send mp_post_json_hash.to_json.to_s
@@ -142,32 +224,36 @@ def process_message(ws, message_json)
 
   if message_type == 'Refresh' then
     message_domain = message_json['Domain']
-	if message_domain != nil then
-	  if message_domain == 'Login' then
-        #send_market_price_request(ws)
-        #send_market_price_post(ws)
-        create_ric_post(ws)
-	  end
-	end
-
-    if message_json['ID'] == 2 and not $is_item_stream_open and
-        (message_json['State'] == nil or (message_json['State']['Stream'] == 'Open' and message_json['State']['Data'] == 'Ok')) then
-      # Our TRI.N stream is now open. We can start posting content.
-      $is_item_stream_open = true
-      Thread.new do
-        loop do
-          sleep 3
-          #send_market_price_post(ws)
+	  if message_domain != nil then
+      if message_domain == 'Login' then
+        # send POST message based on user input action value
+        case $action
+          when 'create'
+            create_ric_post(ws)
+          when 'addfields'
+            add_fields_post(ws)
+          when 'removefields'
+            remove_fields_post(ws)
+          when 'delete'
+            delete_ric_post(ws)
+          when 'update'
+            update_market_price_post(ws)
+          else 
+            puts "Received unsupported action, exit application"
+            exit 1
         end
-      end
     end
-  elsif message_type == 'Ping' then
+  end
+  elsif message_type == 'Ping' then # send Pong back to ADS WebSocket handshake 'Ping'
     pong_json_hash = {
 	    'Type' => 'Pong',
     }
     ws.send pong_json_hash.to_json.to_s
     puts 'SENT:'
     puts JSON.pretty_generate(pong_json_hash)
+  elsif message_type == 'Ack' || message_type == 'Error' || message_type == 'Status' then
+    puts "RECEIVED: #{message_type} from #{$hostname}:#{$port}, exit application"
+    exit 0
   end
 end
 
