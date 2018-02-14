@@ -119,6 +119,7 @@ def add_fields_post(ws)
       'Type' => 'Update',
       'Domain' => 'MarketPrice',
       'Fields' => {'X_RIC_NAME' => 'CREATED.RIC' ,'HIGH_1' => 22,'LOW_1' => 3 }
+      #'Fields' => {'X_RIC_NAME' => 'CREATED.RIC' ,'UDM_VER_N' => 10}
     }
   }
   ws.send mp_post_json_hash.to_json.to_s
