@@ -1,7 +1,7 @@
-# Market Price Elektron WebSocket Post Application with Ruby
+# The Elektron WebSocket API Posting to ATS example with Ruby Implementation Detail
 
 ## Overview
-- The application sends the OffStream post message to ADS 3.2 WebSocket connection
+- The application sends the Off-Stream post message to ADS 3.2 WebSocket connection
 - The application supports the following post messages 
     - Create ATS contribution RIC
     - Update ATS contirbution RIC market price data
@@ -9,14 +9,16 @@
     - Remove ATS contribion fields
     - Delete ATS contribution RIC
 - The application performs the following steps
-    1. User start application with command parameter to specify action (create, update, delete, addfields, removefields)
-    2. The applciation establish a WebSocket connection with ADS
-    3. The application send a Login request message to ADS
-    4. Once the application receives a Login Refresh message from ADS, it sends JSON post message to ADS based on action in step (1)
+    1. Users start application with command line parameter to specify action (create, update, delete, addfields, removefields)
+    2. The applciation establishes the WebSocket connection with ADS
+    3. The application sends a Login request message to ADS
+    4. Once the application receives a Login Refresh message from ADS, it sends JSON post message to ADS based on action parameter in step (1)
     5. Once the application receives Ack message from ADS, the applciation exit
 - The application is modified from Elektron WebSocket API's market_price_posting.rb example.
 
-## Code Change
+Please find the application overview, installation, references in [README.md](./README.md) file.
+
+## Code Changes from market_price_posting.rb
 
 1. The market_price_posting.rb automatic gets user's IP address and sends it to ADS as a Post message's user information. That IP Address could be IPV6 Address which ADS server does not support. The market_price_postapp.rb changes this behavior to send IPV4 Address to ADS.
 
@@ -58,6 +60,21 @@
     ```
 3. The application does not send the Market Price request message to the ADS server. Instead, it sends the Post message based on action parameter.
 
+    **market_price_posting.rb**
+    ```
+    # Parse at high level and output JSON of message
+    def process_message(ws, message_json)
+        message_type = message_json['Type']
+
+        if message_type == 'Refresh' then
+            message_domain = message_json['Domain']
+            if message_domain != nil then
+                if message_domain == 'Login' then
+                    send_market_price_request(ws)
+                end
+            end
+    ```
+
     **market_price_postapp.rb**
     ```
 
@@ -97,16 +114,55 @@
 
     All functions do the same thing, create the JSON object with Ruby hash, then send it to ADS with WebSocket.send() function.
 
+5. The market_price_posting.rb application sends On-stream post message but market_price_postapp.rb application sends Off-stream post message. 
 
-## Prerequisite 
-1. The ADS 3.2 must contain the ATS fields definition in the RDMFieldDictionary file.
-```
-X_RIC_NAME                "RIC NAME"                    -1      NULL    ALPHANUMERIC    32  RMTES_STRING    32
-```
-2. [Ruby](https://www.ruby-lang.org/en/) compiler and runtime
-3. Ruby [websocket-client-simple](https://rubygems.org/gems/websocket-client-simple) library 
-4. Ruby [ipaddress](https://rubygems.org/gems/ipaddress) library 
-5. Ruby [http](https://rubygems.org/gems/http) library 
+    **market_price_posting.rb**
+    ```
+    # Create and send simple Market Price post
+    def send_market_price_post(ws)
+        mp_post_json_hash = {
+            'ID' => 2, #Item Stream
+            'Type' => 'Post',
+            'Domain' => 'MarketPrice',
+            'Ack' => true,
+            'PostID' => $post_id,
+            'PostUserInfo' =>  {
+                'Address' => $position, # Use the IP address as the Post User Address.
+                'UserID' => Process.pid # Use our current process ID as the Post User Id.
+            },
+                'Message' => {
+                'ID' => 0,
+                'Type' => 'Update',
+                'Fields' => {'BID' => 45.55,'BIDSIZE' => 18, 'ASK' => 45.57, 'ASKSIZE' => 19}
+            }
+        }
+    ```
+    **market_price_postapp.rb**
+    ```
+    # Create contribution RIC in ATS by simple Market Price post
+    def create_ric_post(ws)
+        mp_post_json_hash = {
+            'ID' => 1, #Login Stream
+            'Type' => 'Post',
+            'Domain' => 'MarketPrice',
+            'Ack' => true,
+            'PostID' => $post_id,
+            'PostUserInfo' =>  {
+            'Address' => $position, # Use the IP address as the Post User Address.
+            'UserID' => Process.pid
+            },
+            'Key' => {
+                'Name' => 'ATS_INSERT_S', # RIC name for create ATS server contribution RIC
+                'Service' => 668 # ADS Service ID that connects to ATS server
+            },
+            'Message' => {
+                'ID' => 0,
+                'Type' => 'Refresh',
+                'Domain' => 'MarketPrice',
+                'Fields' => {'X_RIC_NAME' => 'CREATED.RIC' ,'BID' => 12, 'ASK' => 15}
+            }
+        }
+    ```
 
 ## Running the application 
 
