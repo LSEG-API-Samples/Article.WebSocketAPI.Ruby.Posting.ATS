@@ -8,3 +8,4 @@ RDMFieldDictionary
 tmp/
 src/market_price.rb
 Ew/
+.vscode/
