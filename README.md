@@ -2,13 +2,15 @@
 
 ## Overview
 
+**Update**: February 2021
+
 [Websocket API for Pricing Streaming and Real-Time Service](https://developers.refinitiv.com/elektron/websocket-api) (aka Websocket API, formerly known as Elektron WebSocket API)  enables easy integration into a multitude of client technology environments such as scripting and web.  This API runs directly on your Refinitiv Real-Time Distribution System and presents data in an open (JSON) readable format. The API supports all Refinitiv Real-Time data models and can be integrated into multiple client technology standards e.g. JavaScript, Python, R, .Net etc.
 
-This article covers how to implement the WebSocket client application to create, update market price data and delete the ATS server's contribution RIC via ADS 3.2.1 (and above) with Posting feature. 
+This article covers how to implement the WebSocket client application to create, update market price data and delete the ATS server's contribution RIC via Refinitiv Real-Time Advanced Distribution Server 3.2.1 (and above) with Posting feature. 
 
 The example application is implemented with Ruby language, but the main concept and JSON post message structures are the same for all technologies. 
 
-*Note: The initial release of this API is for deployed ADS customers only (i.e. to use it you will need an installed version of ADS 3.2.1 and above).
+*Note: The initial release of this API is for deployed Real-Time Advanced infrastructure customers only (i.e. to use it you will need an installed version of Real-Time Advanced Distribution Server 3.2.1 and above).
 
 ## ATS Overview
 
@@ -25,9 +27,9 @@ Through posting, API consumers can easily push content into any cache within the
 This example covers only how to use the Off-Stream Post to contribute item to ATS server.
 
 ## Prerequisite 
-1. ADS server 3.2.1 (and above) with WebSocket connection
+1. Real-Time Advanced Distribution Server server 3.2.1 (and above) with WebSocket connection
 2. ATS server
-3. The ADS/ADH server musts contain the ATS fields definition in the RDMFieldDictionary file.
+3. The Real-Time Advanced Distribution Server/Real-Time Advanced Data Hub server musts contain the ATS fields definition in the RDMFieldDictionary file.
 ```
 X_RIC_NAME                "RIC NAME"                    -1      NULL    ALPHANUMERIC    32  RMTES_STRING    32
 ```
@@ -164,10 +166,13 @@ Please see [Implementation Note file](./note.md) for more detail.
 
 ## References
 For further details, please check out the following resources:
-* [Websocket API for Pricing Streaming and Real-Time Service page](https://developers.refinitiv.com/websocket-api) on the [Refinitiv Developer Community](https://developers.refinitiv.com/) web site.
+* [Refinitiv Real-Time & Distribution Family page](https://developers.refinitiv.com/en/use-cases-catalog/refinitiv-real-time) on the [Refinitiv Developer Community](https://developers.refinitiv.com/) web site.
+* [WebSocket API page](https://developers.refinitiv.com/en/api-catalog/elektron/refinitiv-websocket-api).
 * [Developer Webinar Recording: Introduction to  WebSocket API](https://www.youtube.com/watch?v=CDKWMsIQfaw)
 * [WebSocket technology](https://www.websocket.org/index.html) web site.
-* [Developer Article: Building a Real-time Quote widget](https://developers.refinitiv.com/article/building-real-time-quote-widget)
-* [Developer Article: How to implement  WebSocket API JavaScript application with HTML Web Workers](https://developers.refinitiv.com/article/how-implement-elektron-websocket-api-javascript-application-html-web-workers)
+* [Developer Article: Consume Realtime data with Refinitiv Data Platform](https://developers.refinitiv.com/en/article-catalog/article/consume-real-time-data-with-refinitiv-data-platform)
+* [Developer Article: How to implement WebSocket API JavaScript application with HTML Web Workers](https://developers.refinitiv.com/en/article-catalog/article/how-implement-elektron-websocket-api-javascript-application-html-web-workers)
+* [Developer Article: How to implement WebSocket API JavaScript application with TypeScript](https://developers.refinitiv.com/en/article-catalog/article/how-to-implement-elektron-websocket-api-javascript-application-typescript)
+* [Developer Article: Consuming Order Book Level 2 data with Websocket API](https://developers.refinitiv.com/en/article-catalog/article/consuming-order-book-level-2-data-with-elektron-websocket-api)
 
-For any question related to this article or Websocket API for Pricing Streaming and Real-Time Service, please use the Developer Community [Q&A Forum](https://community.developers.refinitiv.com/).
+For any questions related to this article or the WebSocket API page, please use the Developer Community [Q&A Forum](https://community.developers.refinitiv.com/spaces/152/websocket-api.html).
