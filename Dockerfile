@@ -4,12 +4,11 @@ FROM ruby:${RUBY_VERSION}-slim-bullseye as builder
 
 LABEL maintainer="Developer Advocate"
 
-# Application dependencies
-COPY Gemfile ./
+# Copy Application dependencies
+COPY Gemfile Gemfile.lock ./
 
 # Install dependencies
 RUN apt-get update -y \
-    #&& apt-get install -y build-essential ruby-dev zlib1g-dev liblzma-dev\
     && apt-get install -y build-essential \
     # Application dependencies
     && bundle install \
@@ -18,6 +17,7 @@ RUN apt-get update -y \
     && rm -rf /var/lib/apt/lists/*
 
 ## Second stage, for running the application in a final image.
+ARG VARIANT=alpine
 FROM ruby:${RUBY_VERSION}-alpine
 LABEL maintainer="Developer Advocate"
 

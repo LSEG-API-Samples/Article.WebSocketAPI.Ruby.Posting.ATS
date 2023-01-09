@@ -94,6 +94,15 @@ If you want to run the example with a Docker container manually, please follow t
   **Note**: If you want to connect the Docker container to a localhost, please use ```host.docker.internal``` as the Host name.
 4. To start other commands, please stop and delete existing container first with the ```docker stop ruby_ws_ats``` and ```docker rm ruby_ws_ats``` commands.
 
+## Running as VS Code DevContainer
+
+1. Start a Docker desktop or Docker engine on your machine.
+2. Install the [VS Code - Remote Development extension pack](https://aka.ms/vscode-remote/download/extension).
+3. Open the VS Code Command Palette with the ```F1``` key, and then select the **Remote-Containers: Reopen in Container** command.
+  ![devcontainer](images/01_reopen_in_container_1.png "Reopen in Container  menu 1")
+4. Once this build is completed, VS Code automatically connects to the container, and automatics initializes the project for developers.  Now VS Code is ready for the Ruby ATS WebSocket Posting example inside this devcontainer.
+  ![devcontainer1](images/02_devconainer.png "VS Code is Ready")
+
 
 ## Example Results
 

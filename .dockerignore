@@ -9,5 +9,6 @@ RDMFieldDictionary
 README.md
 example_msgs/
 images/
+.devcontainer/
 # Used by dotenv library to load environment variables.
-# .env
+# .env.
