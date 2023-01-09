@@ -72,9 +72,29 @@ Once all dependencies and environment have been setup, you can run the example a
 
 1. Open a command prompt and go to **&lt;project&gt;src** folder and run the following command
 
-``` Bash
-$> ruby market_price_postapp.rb [--hostname hostname ] [--port WebSocket port] [--service ATS Service Name] [--app_id appID] [--user user] [--action {{create, addfields, removefields, delete, update}}]
-```
+  ``` Bash
+  $> ruby market_price_postapp.rb [--hostname hostname ] [--port WebSocket port] [--service ATS Service Name] [--app_id appID] [--user user] [--action {{create, addfields, removefields, delete, update}}]
+  ```
+
+## How to run this example application with Docker
+
+**Docker Desktop/engine should be running prior to the next step.**
+
+If you want to run the example with a Docker container manually, please follow the steps below.
+
+1. Start a Docker desktop or Docker engine on your machine.
+2. Open a command prompt and go to **&lt;project** folder and run the following command to build a Docker image:
+  ``` Bash
+  $>docker build . -t ruby_ws_ats
+  ```
+3. Onces a Docker image build process is completed, run the following command to start the application in Docker container:
+  ``` 
+  $>docker run -it --name ruby_ws_ats ruby_ws_ats [--hostname hostname ] [--port WebSocket port] [--service ATS Service Name] [--app_id appID] [--user user] [--action {{create, addfields, removefields, delete, update}}]
+  ```
+  **Note**: If you want to connect the Docker container to a localhost, please use ```host.docker.internal``` as the Host name.
+4. To start other commands, please stop and delete existing container first with the ```docker stop ruby_ws_ats``` and ```docker rm ruby_ws_ats``` commands.
+
+
 ## Example Results
 
 ### Create ATS contribution RIC example JSON message

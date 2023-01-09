@@ -68,7 +68,7 @@ opt_parser = OptionParser.new do |opt|
   end
   
   opt.on('--help','HELP') do |help|
-	puts 'Usage: market_price.rb [--hostname hostname] [--port port] [--service ATS Service Name] [--app_id app_id] [--user user] [--position position] [--action {create, addfields, removefields, delete, update}][--help]'
+	puts 'Usage: ruby market_price_postapp.rb [--hostname hostname] [--port port] [--service ATS Service Name] [--app_id app_id] [--user user] [--position position] [--action {create, addfields, removefields, delete, update}][--help]'
 	exit 0
   end
 end

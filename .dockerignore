@@ -1,0 +1,13 @@
+.vscode/
+Ew/
+java/
+tmp/
+diagram.pttx
+LICENSE.md
+note.md
+RDMFieldDictionary
+README.md
+example_msgs/
+images/
+# Used by dotenv library to load environment variables.
+# .env
