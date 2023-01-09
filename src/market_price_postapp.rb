@@ -21,6 +21,7 @@ $user = 'api'
 $app_id = '256'
 $action = 'update'
 
+
 # get IPV4 from user machine as a default position information
 addr_infos = Socket.ip_address_list
 addr_infos.each do |addr_info|
@@ -32,6 +33,8 @@ end
 # Global Variables
 $is_item_stream_open = false
 $post_id = 1
+# ATS Service
+$ats_service = 'ATS' #10000
 
 # Get command line parameters
 opt_parser = OptionParser.new do |opt|
@@ -42,6 +45,10 @@ opt_parser = OptionParser.new do |opt|
 
   opt.on('--port port','port') do |port|
     $port = port
+  end
+
+  opt.on('--service service', 'service') do |service|
+    $ats_service = service
   end
 
   opt.on('--user USER','USER') do |user|
@@ -61,7 +68,7 @@ opt_parser = OptionParser.new do |opt|
   end
   
   opt.on('--help','HELP') do |help|
-	puts 'Usage: market_price.rb [--hostname hostname] [--port port] [--app_id app_id] [--user user] [--position position] [--action {create, addfields, removefields, delete, update}][--help]'
+	puts 'Usage: market_price.rb [--hostname hostname] [--port port] [--service ATS Service Name] [--app_id app_id] [--user user] [--position position] [--action {create, addfields, removefields, delete, update}][--help]'
 	exit 0
   end
 end
@@ -89,7 +96,7 @@ def create_ric_post(ws)
     },
     'Key' => {
         'Name' => 'ATS_INSERT_S', # RIC name for create ATS server contribution RIC
-        'Service' => 668 # ADS Service ID that connects to ATS server
+        'Service' => $ats_service # ADS Service ID that connects to ATS server
     },
     'Message' => {
       'ID' => 0,
@@ -119,7 +126,7 @@ def add_fields_post(ws)
     },
     'Key' => {
         'Name' => 'ATS_ADDFIELD_S', # RIC name for add fields to ATS server contribution RIC
-        'Service' => 668 # ADS Service ID that connects to ATS server
+        'Service' => $ats_service # ADS Service ID that connects to ATS server
     },
     'Message' => {
       'ID' => 0,
@@ -150,7 +157,7 @@ def remove_fields_post(ws)
     },
     'Key' => {
         'Name' => 'ATS_DELETE', # RIC Name for remove fields for ATS server contribution RIC
-        'Service' => 668 # ADS Service ID that connects to ATS server
+        'Service' => $ats_service # ADS Service ID that connects to ATS server
     },
     'Message' => {
       'ID' => 0,
@@ -180,7 +187,7 @@ def delete_ric_post(ws)
     },
     'Key' => {
         'Name' => 'ATS_DELETE_ALL', # RIC Name for remove ATS server contribution RIC
-        'Service' => 668 # ADS Service ID that connects to ATS server
+        'Service' => $ats_service # ADS Service ID that connects to ATS server
     },
     'Message' => {
       'ID' => 0,
@@ -210,7 +217,7 @@ def update_market_price_post(ws)
     },
     'Key' => {
         'Name' => 'CREATED.RIC', # ATS server contribution RIC name
-        'Service' => 668 # ADS Service ID that connects to ATS server
+        'Service' => $ats_service # ADS Service ID that connects to ATS server
     },
     'Message' => {
       'ID' => 0,

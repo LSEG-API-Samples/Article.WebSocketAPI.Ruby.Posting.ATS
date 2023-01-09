@@ -2,7 +2,7 @@
 
 ## Overview
 
-**Update**: February 2021
+**Update**: January 2023
 
 [Websocket API for Pricing Streaming and Real-Time Service](https://developers.refinitiv.com/elektron/websocket-api) (aka Websocket API, formerly known as Elektron WebSocket API)  enables easy integration into a multitude of client technology environments such as scripting and web.  This API runs directly on your Refinitiv Real-Time Distribution System and presents data in an open (JSON) readable format. The API supports all Refinitiv Real-Time data models and can be integrated into multiple client technology standards e.g. JavaScript, Python, R, .Net etc.
 
@@ -72,8 +72,8 @@ Once all dependencies and environment have been setup, you can run the example a
 
 1. Open a command prompt and go to **&lt;project&gt;src** folder and run the following command
 
-```
-$> ruby market_price_postapp.rb [--hostname hostname ] [--port WebSocket port] [--app_id appID] [--user user] [--action {{create, addfields, removefields, delete, update}}]
+``` Bash
+$> ruby market_price_postapp.rb [--hostname hostname ] [--port WebSocket port] [--service ATS Service Name] [--app_id appID] [--user user] [--action {{create, addfields, removefields, delete, update}}]
 ```
 ## Example Results
 
